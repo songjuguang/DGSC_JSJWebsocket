@@ -7,10 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -24,17 +21,24 @@ import java.util.Date;
 @Getter
 @ToString
 @Entity
-@Table(name = "SC_JSJ_WariningData")
-public class WarningData {
+@Table(name = "SC_JSJ_AlarmData")
+public class AlarmData {
+//    private Integer id;
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String groupId;
     private String cid;
     private String route;
+    @Column(name = "videoAddr")
     private String video_addr;
     private String pic1;
+    @Column(name = "appId")
     private String appid;
     private Long time_stamp;
     private Date datetime;
     private String type;
+    @Column(name = "deviceId")
     private String device_id;
+
 }
