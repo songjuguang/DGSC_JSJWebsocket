@@ -13,6 +13,9 @@ import com.mkoteam.repository.AlarmRepository;
 import com.mkoteam.repository.JSJConfigRepository;
 import com.mkoteam.repository.TypeRepository;
 import com.mkoteam.until.HttpUtil;
+import com.mkoteam.until.RandomUtil;
+import com.mkoteam.until.UpdatePictureUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +44,7 @@ public class ControllerApplication implements CommandLineRunner, DListener {
 
     @Value("${spring.data.url}")
     String webSocketURI;
-    List<JSJDataRecevier> connections;
+//    List<JSJDataRecevier> connections;
 
     @Override
     public void run(String... args) {
@@ -61,7 +64,34 @@ public class ControllerApplication implements CommandLineRunner, DListener {
                 e.printStackTrace();
             }
         }
+//      首先先从数据库查出的直播流地址
+        String[] addrs = alarmRepository.findAllVideoaddr();
 
+//      此处线程负责实时视频定时更新截图
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(60000);
+                        for (String str : addrs) {
+                            if (!StringUtils.isEmpty(str.replace(",",""))) {
+                                String[] cidStr = str.split(",");
+                                String cidInfo = cidStr[0];
+                                String videoInfo = cidStr[1];
+                                String picAddr = "D:\\pictures\\" + RandomUtil.getRandomString(24) + ".jpeg";
+                                String commandStr = "D:\\tool\\ffmpeg\\bin\\ffmpeg -i " + videoInfo + " -f image2 -ss 5 -vframes 1 -s 600*600 " + picAddr;
+                                UpdatePictureUtil.exeCmd(commandStr);
+//                             更新数据库该监控摄像头的图片信息
+                                alarmRepository.updatePic(cidInfo, picAddr);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     public static void main(String[] args) {
@@ -69,25 +99,41 @@ public class ControllerApplication implements CommandLineRunner, DListener {
     }
 
     @Override
-    public void doorEvent(JSJDataEvent event, String groupId) {
+    public void doorEvent(JSJDataEvent event, String groupId, JSJConfig jsg) {
         String message = (String) event.getSource();
-        JSONArray jsons = (JSONArray) JSONArray.parse(message);
-        for (Object obj : jsons) {
-            JSONObject jo = (JSONObject) obj;
-            String cid = jo.getString("cid");
-            String route = jo.getString("route");
-            String video_addr = jo.getString("video_addr");
-            String pic1 = jo.getString("pic1");
-            String appid = jo.getString("appid");
-            String time_stamp = jo.getString("time_stamp");
-            String datetime = jo.getString("datetime");
-            String type = jo.getString("type");
-            String device_id = jo.getString("device_id");
+        if (message.equals("增加参数")) {
+                /*try {
+                    JSJDataRecevier dataRecevier = new JSJDataRecevier(jsg, webSocketURI);
+                    connections.add(dataRecevier);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }*/
+            this.run();
+        }
+        if (message.equals("移除参数")) {
+                /*try {
+                    JSJDataRecevier dataRecevier = new JSJDataRecevier(jsg, webSocketURI);
+                    connections.remove(dataRecevier);
+                   int i = connections.size();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }*/
+            this.run();
+        }
+        if (!message.equals("增加参数") && !message.equals("移除参数")) {
+            AlarmData alarmData = JSONObject.parseObject(message, AlarmData.class);
+            alarmData.setGroupId(groupId);
+            String cid = alarmData.getCid();
+            String route = alarmData.getRoute();
+            String video_addr = alarmData.getVideo_addr();
+            String pic1 = alarmData.getPic1();
+            String appid = alarmData.getAppid();
+            String time_stamp = alarmData.getTime_stamp().toString();
+            String datetime = alarmData.getDatetime().toString();
+            String type = alarmData.getType();
+            String device_id = alarmData.getDevice_id();
 
             if (!cid.equals("") && !route.equals("") && !appid.equals("") && !type.equals("") && !device_id.equals("") && !type.equals("") && !video_addr.equals("") && video_addr.startsWith("http:") && video_addr.endsWith(".ts") && !pic1.equals("") && pic1.startsWith("http:") && !time_stamp.equals("") && time_stamp.length() == 10) {
-                String s = JSONObject.toJSONString(obj);
-                AlarmData alarmData = JSONObject.parseObject(s, AlarmData.class);
-                alarmData.setGroupId(groupId);
 //                保存报警数据前先对设备是否停用作判断，只有在开启的状态下才能保存数据
                 Integer status = alarmRepository.findSbstatusByCid(cid);
                 if (status == 1) {

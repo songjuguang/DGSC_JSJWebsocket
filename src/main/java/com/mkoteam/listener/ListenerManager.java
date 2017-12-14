@@ -1,6 +1,7 @@
 package com.mkoteam.listener;
 
 import com.mkoteam.ControllerApplication;
+import com.mkoteam.entity.JSJConfig;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,22 +33,23 @@ public class ListenerManager {
     /**
      * 触发保存消息
      */
-    public void saveMessage(String message,String groupId) {
+    public void saveMessage(String message, String groupId, JSJConfig js) {
         if (listeners == null)
             return;
         //ControllerApplication event = new ControllerApplication(this, message);
         JSJDataEvent event = new JSJDataEvent(message);
-        notifyListeners(event,groupId);
+        notifyListeners(event,groupId,js);
     }
-
     /**
      * 通知所有的DoorListener
      */
-    private void notifyListeners(JSJDataEvent event,String groupId) {
+    private void notifyListeners(JSJDataEvent event,String groupId, JSJConfig js) {
         Iterator iter = listeners.iterator();
         while (iter.hasNext()) {
             DListener listener = (DListener) iter.next();
-            listener.doorEvent(event,groupId);
+            listener.doorEvent(event,groupId,js);
         }
     }
+
+
 }

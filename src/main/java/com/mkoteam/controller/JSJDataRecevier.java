@@ -58,7 +58,7 @@ public class JSJDataRecevier extends WebSocketClient {
                 public void run() {
                     while (true) {
                         try {
-                            Thread.sleep(3000);
+                            Thread.sleep(30000);
                             self.send(heartObj.toJSONString());
                         } catch (Exception e) {
                             System.out.println("心跳包发送异常");
@@ -95,34 +95,10 @@ public class JSJDataRecevier extends WebSocketClient {
         System.out.println("received: " + message);
 
 //   如有返回报警数据对其进行保存处理
-        /*message="[\n"+
-                "    {\n"+
-                "        \"cid\": \"100775  \",\n"+
-                "        \"route\": \"alarm\",\n"+
-                "        \"video_addr\": \"http://extremevision-hz-open.oss-cn-hangzhou.aliyuncs.com/IPC-100124/1470726132243.ts\",\n"+
-                "        \"pic1\": \"http://img-alert.extremevision.com.cn/shot_20170218193601_e6cb222c530a415cb07138410e43a70c.jpg\",\n"+
-                "        \"appid\": \"sUser131\",\n"+
-                "        \"time_stamp\": \"1512376711\",\n"+
-                "        \"datetime\": \"2017-12-04 16:38:31\",\n"+
-                "        \"type\": \"66000000\",\n"+
-                "        \"device_id\": \"100762\"\n"+
-                "    },\n"+
-                "    {\n"+
-                "        \"cid\": \"100776\",\n"+
-                "        \"route\": \"alarm\",\n"+
-                "        \"video_addr\": \"http://extremevision-hz-open.oss-cn-hangzhou.aliyuncs.com/IPC-100124/1470726132243.ts\",\n"+
-                "        \"pic1\": \"http://img-alert.extremevision.com.cn/shot_20170218193601_e6cb222c530a415cb07138410e43a70c.jpg\",\n"+
-                "        \"appid\": \"sUser131\",\n"+
-                "        \"time_stamp\": \"1512376711\",\n"+
-                "        \"datetime\": \"2017-12-04 16:38:31\",\n"+
-                "        \"type\": \"88000000\",\n"+
-                "        \"device_id\": \"100763\"\n"+
-                "    }\n"+
-                "]";*/
-
+//        message="{\"info\":\"\",\"alert_type\":\"cloud\",\"pic3\":\"\",\"cid\":\"100961\",\"route\":\"alarm\",\"video_addr\":\"http:\\/\\/extremevision-hz-stream.oss-cn-hangzhou.aliyuncs.com\\/IPC-100961\\/1513152819474.ts\",\"pic1\":\"http:\\/\\/img-alert.extremevision.com.cn\\/alert_20171213161400_385a2ce383db4042bfbd4ce398e86be0.jpg\",\"pic2\":\"\",\"appid\":\"sUser131\",\"time_stamp\":\"1513152840\",\"datetime\":\"2017-12-13 16:13:49\",\"type\":\"17000000\",\"device_id\":\"100961\"}";
         if (message != null && !message.trim().equals("") && !message.equals("{\"route\":\"heart_beat\"}") && !message.equals("{\"status\":200,\"info\":\"success\"}")) {
 
-            ListenerManager.getSingle().saveMessage(message,jsjConfig.getGroupId());
+            ListenerManager.getSingle().saveMessage(message,jsjConfig.getGroupId(),null);
 
         }
 

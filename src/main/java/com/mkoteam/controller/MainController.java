@@ -2,12 +2,9 @@ package com.mkoteam.controller;
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.mkoteam.entity.AlarmData;
 import com.mkoteam.entity.JSJConfig;
 import com.mkoteam.entity.ResultData;
+import com.mkoteam.listener.ListenerManager;
 import com.mkoteam.repository.AlarmRepository;
 import com.mkoteam.repository.JSJConfigRepository;
 import com.mkoteam.until.DateUtils;
@@ -18,10 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.*;
 
 
@@ -37,29 +31,26 @@ public class MainController extends BaseController {
 
 
     /**
-     * 根据cid groupid查询设备报警信息  参数为GroupId cid
+     * 根据cid查询设备报警信息  参数为 cid
      */
     @GetMapping("findAlarmInfo")
-    public MKOResponse findAlarmInfo(@RequestParam(value = "groupId") String groupId, @RequestParam(value = "cid") String cid) {
-        if (StringUtils.isEmpty(groupId)) {
-            return this.makeParamsLackResponse("缺少groupId");
-        }
+    public MKOResponse findAlarmInfo(@RequestParam(value = "cid") String cid) {
         if (StringUtils.isEmpty(cid)) {
             return this.makeParamsLackResponse("缺少cid");
         }
 //        查询出指定cid的数量
-        Integer total = alarmRepository.findAlarmInfoCount(groupId, cid);
+        Integer total = alarmRepository.findAlarmInfoCount(cid);
 //        查询报警的首次时间
-        Date first = alarmRepository.findAlarmFirstTime(groupId, cid);
+        Date first = alarmRepository.findAlarmFirstTime(cid);
         String firstTime = DateUtils.datetimeFormat.format(first);
 //        查询报警的最近时间
-        Date recent = alarmRepository.findAlarmRecentTime(groupId, cid);
+        Date recent = alarmRepository.findAlarmRecentTime(cid);
         String recentTime = DateUtils.datetimeFormat.format(recent);
         Map<String, Object> map = new HashMap<>();
         map.put("alarmCount", total);
         map.put("firstTime", firstTime);
         map.put("recentTime", recentTime);
-        List<Object> lists = alarmRepository.findAlarmInfo(groupId, cid);
+        List<Object> lists = alarmRepository.findAlarmInfo(cid);
         List<Object> li = new ArrayList<>();
         for (Object object : lists) {
             ResultData resultData = new ResultData();
@@ -100,13 +91,11 @@ public class MainController extends BaseController {
             return this.makeParamsLackResponse("缺少groupId");
         }
 //        查询出该单位下报警的总记录数
-        int total = alarmRepository.findAlarmDataCount(groupId);
+//        int total = alarmRepository.findAlarmDataCount(groupId);
 //        查询出摄像头位置和类型数据和单个报警次数
         List<Object> lists = alarmRepository.findAlarmData(groupId);
         List<Object> li = new ArrayList<>();
         Map<String, Object> mapTtotal = new HashMap<>();
-        mapTtotal.put("total", total);
-        li.add(mapTtotal);
         for (Object object : lists) {
             String str = JSON.toJSONString(object);
             String[] res = str.split(",");
@@ -126,11 +115,14 @@ public class MainController extends BaseController {
             }
             li.add(map);
         }
+        mapTtotal.put("total", li.size());
+        li.add(mapTtotal);
+
         return this.makeSuccessResponse(li);
     }
 
     /**
-     * 根据groupId cid改变处理状态  传入type参数为0时代表状态改为已通知  type为1时代表状态改为已确认正常
+     * 根据cid改变处理状态  传入type参数为0时代表状态改为已通知  type为1时代表状态改为已确认正常
      */
     @GetMapping("updateCidStatusBycid")
     public MKOResponse updateCidStatus(@RequestParam(value = "cid") String cid, @RequestParam(value = "type") String type) {
@@ -170,11 +162,9 @@ public class MainController extends BaseController {
             return this.makeParamsLackResponse("缺少groupId");
         }
         List<Object> lists = alarmRepository.findVideoSurveillanceList(groupId);
-        int total = alarmRepository.findVideoSurveillanceCount(groupId);
+//        int total = alarmRepository.findVideoSurveillanceCount(groupId);
         List<Object> li = new ArrayList<>();
         Map<String, Object> mapTtotal = new HashMap<>();
-        mapTtotal.put("total", total);
-        li.add(mapTtotal);
         for (Object object : lists) {
             String str = JSON.toJSONString(object);
             String[] res = str.split(",");
@@ -192,6 +182,8 @@ public class MainController extends BaseController {
             map.put("picture", res[5].replace("]", "").replace("\"", ""));
             li.add(map);
         }
+        mapTtotal.put("total", li.size());
+        li.add(mapTtotal);
         return this.makeSuccessResponse(li);
     }
 
@@ -248,16 +240,16 @@ public class MainController extends BaseController {
         if (StringUtils.isEmpty(type)) {
             return this.makeParamsLackResponse("缺少type");
         }
-        if (!type.equals("0") || !type.equals("1")) {
+        if (!type.equals("0") && !type.equals("1")) {
             return this.makeParamsLackResponse("type格式不正确");
         }
-        if (type.equals(0)) {
+        if (type.equals("0")) {
             Integer line = alarmRepository.webcamIsClose(cid);
             if (line == 1) {
                 return this.makeSuccessResponse("摄像头已停用");
             }
         }
-        if (type.equals(1)) {
+        if (type.equals("1")) {
             Integer line = alarmRepository.webcamIsOpen(cid);
             if (line == 1) {
                 return this.makeSuccessResponse("摄像头已开启");
@@ -274,18 +266,17 @@ public class MainController extends BaseController {
         if (StringUtils.isEmpty(cid)) {
             return this.makeParamsLackResponse("缺少cid");
         }
-        int total = alarmRepository.findDeviceAlarmInfoCount(cid);
+//        int total = alarmRepository.findDeviceAlarmInfoCount(cid);
         List<Object> lists = alarmRepository.findDeviceAlarmInfoList(cid);
         List<Object> li = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
-        map.put("total", total);
         for (Object object : lists) {
             String str = JSON.toJSONString(object);
             String[] res = str.split(",");
             System.out.println("结果：" + res[0] + "," + res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5] + "," + res[6] + "," + res[7] + "," + res[8]);
             Map<String, Object> maps = new HashMap<>();
             maps.put("cid", res[0].replace("[\"", "").replace("\"", ""));
-            maps.put("count", res[1].replace("\"", ""));
+            maps.put("count", res[1]);
             maps.put("jzName", res[2].replace("\"", ""));
             maps.put("jzLevel", res[3].replace("\"", ""));
             maps.put("jzPosition", res[4].replace("\"", ""));
@@ -305,15 +296,26 @@ public class MainController extends BaseController {
             maps.put("videoAddr", res[8].replace("\"", "").replace("]", ""));
             li.add(maps);
         }
+        if (li.size() == 3) {
+            Map<String, Object> m1 = (Map<String, Object>) li.get(0);
+            Map<String, Object> m2 = (Map<String, Object>) li.get(1);
+            if (m1.get("status").equals("已通知") && m2.get("status").equals("待处理")) {
+                int totalNumber = Integer.valueOf(m1.get("count").toString()) + Integer.valueOf(m2.get("count").toString());
+                m1.put("count", totalNumber);
+                li.remove(1);
+            }
+        }
+        int total = li.size();
+        map.put("total", total);
         li.add(map);
         return this.makeSuccessResponse(li);
     }
 
 
     /**
-     * 调第三方接口的参数持久化
+     * 增加调第三方接口的参数持久化
      */
-    @GetMapping("data")
+    @GetMapping("saveJSJConfig")
     public MKOResponse saveJSJConfig(JSJConfig jsjConfig) {
         if (StringUtils.isEmpty(jsjConfig.getAppkey())) {
             return this.makeParamsLackResponse("缺少appkey");
@@ -330,7 +332,37 @@ public class MainController extends BaseController {
         if (StringUtils.isEmpty(jsjConfig.getGroupId())) {
             return this.makeParamsLackResponse("缺少GroupId");
         }
-        jsjConfigRepository.save(jsjConfig);
+//        先判断数据库有没该groupId的参数信息
+        JSJConfig js =  jsjConfigRepository.findByGroupId(jsjConfig.getGroupId());
+        if(js==null){
+            try {
+                jsjConfigRepository.save(jsjConfig);
+                ListenerManager.getSingle().saveMessage("增加参数",jsjConfig.getGroupId(),jsjConfig);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return this.makeSuccessResponse(null);
+    }
+
+    /**
+     * 移除调第三方接口的参数持久化
+     */
+    @GetMapping("deleteJSJConfig")
+    public MKOResponse deleteJSJConfig(@RequestParam(value = "groupId") String groupId) {
+        if (StringUtils.isEmpty(groupId)){
+            return this.makeParamsLackResponse("缺少GroupId");
+        }
+//        先判断数据库有没该groupId的参数信息
+        JSJConfig js =  jsjConfigRepository.findByGroupId(groupId);
+        if(js!=null){
+            try {
+                jsjConfigRepository.delete(js);
+                ListenerManager.getSingle().saveMessage("移除参数",groupId,js);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return this.makeSuccessResponse(null);
     }
 }

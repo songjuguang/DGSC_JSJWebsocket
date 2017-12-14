@@ -40,5 +40,9 @@ public class AlarmData {
     private String type;
     @Column(name = "deviceId")
     private String device_id;
+    private String info;
+    private String alertType;
+    private String pic2;
+    private String pic3;
 
 }
