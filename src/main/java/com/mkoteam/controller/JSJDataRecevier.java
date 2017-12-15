@@ -16,7 +16,6 @@ import java.util.Date;
 
 
 /**
- *
  * Created by song on 12/1/2017.
  */
 @Component
@@ -38,7 +37,7 @@ public class JSJDataRecevier extends WebSocketClient {
         //super();
     }
 
-    public JSJDataRecevier(JSJConfig config, String uri) throws URISyntaxException{
+    public JSJDataRecevier(JSJConfig config, String uri) throws URISyntaxException {
         super(new URI(uri));
         this.jsjConfig = config;
     }
@@ -54,21 +53,21 @@ public class JSJDataRecevier extends WebSocketClient {
 
         final JSJDataRecevier self = this;
         new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        try {
-                            Thread.sleep(30000);
-                            self.send(heartObj.toJSONString());
-                        } catch (Exception e) {
-                            System.out.println("心跳包发送异常");
-                            e.printStackTrace();
-                        }
-                        if (self.getConnection().isClosed() == true){
-                            break;
-                        }
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(30000);
+                        self.send(heartObj.toJSONString());
+                    } catch (Exception e) {
+                        System.out.println("心跳包发送异常");
+                        e.printStackTrace();
+                    }
+                    if (self.getConnection().isClosed() == true) {
+                        break;
                     }
                 }
+            }
         }).start();
 
 //      经算法生成签名
@@ -95,13 +94,9 @@ public class JSJDataRecevier extends WebSocketClient {
         System.out.println("received: " + message);
 
 //   如有返回报警数据对其进行保存处理
-//        message="{\"info\":\"\",\"alert_type\":\"cloud\",\"pic3\":\"\",\"cid\":\"100961\",\"route\":\"alarm\",\"video_addr\":\"http:\\/\\/extremevision-hz-stream.oss-cn-hangzhou.aliyuncs.com\\/IPC-100961\\/1513152819474.ts\",\"pic1\":\"http:\\/\\/img-alert.extremevision.com.cn\\/alert_20171213161400_385a2ce383db4042bfbd4ce398e86be0.jpg\",\"pic2\":\"\",\"appid\":\"sUser131\",\"time_stamp\":\"1513152840\",\"datetime\":\"2017-12-13 16:13:49\",\"type\":\"17000000\",\"device_id\":\"100961\"}";
         if (message != null && !message.trim().equals("") && !message.equals("{\"route\":\"heart_beat\"}") && !message.equals("{\"status\":200,\"info\":\"success\"}")) {
-
-            ListenerManager.getSingle().saveMessage(message,jsjConfig.getGroupId(),null);
-
+            ListenerManager.getSingle().saveMessage(message, jsjConfig.getGroupId(), null);
         }
-
     }
 
     @Override

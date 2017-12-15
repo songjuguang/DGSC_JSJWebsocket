@@ -11,8 +11,9 @@ public class ListenerManager {
     private Collection listeners;
 
     private static ListenerManager listenerManager;
-    public static ListenerManager  getSingle(){
-        if (listenerManager == null){
+
+    public static ListenerManager getSingle() {
+        if (listenerManager == null) {
             listenerManager = new ListenerManager();
         }
         return listenerManager;
@@ -32,20 +33,20 @@ public class ListenerManager {
      * 触发保存消息
      */
     public void saveMessage(String message, String groupId, JSJConfig js) {
-        if (listeners == null)
-            return;
+        if (listeners == null) return;
         //ControllerApplication event = new ControllerApplication(this, message);
         JSJDataEvent event = new JSJDataEvent(message);
-        notifyListeners(event,groupId,js);
+        notifyListeners(event, groupId, js);
     }
+
     /**
      * 通知所有的DoorListener
      */
-    private void notifyListeners(JSJDataEvent event,String groupId, JSJConfig js) {
+    private void notifyListeners(JSJDataEvent event, String groupId, JSJConfig js) {
         Iterator iter = listeners.iterator();
         while (iter.hasNext()) {
             DListener listener = (DListener) iter.next();
-            listener.doorEvent(event,groupId,js);
+            listener.doorEvent(event, groupId, js);
         }
     }
 

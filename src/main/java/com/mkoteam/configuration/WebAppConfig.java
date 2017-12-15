@@ -8,9 +8,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * @author Administrator
- * @ClassName: WebAppConfig
- * @Description: TODO(这里用一句话描述这个类的作用)
+ * @Description: 由于图片没有保存在项目下，此类是为了使用url来访问图片
  * @date 2017年12月15日
  */
 @Configuration

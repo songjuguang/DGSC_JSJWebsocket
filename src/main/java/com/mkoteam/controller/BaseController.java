@@ -23,7 +23,7 @@ import java.util.Map;
  * Created by Kevin on 2/18/17.
  */
 public class BaseController {
-    
+
 
     public MKOResponse makeResponse(MKOResponseCode response, Object data) {
         MKOResponse result = new MKOResponse();
@@ -37,8 +37,7 @@ public class BaseController {
         MKOResponse result = new MKOResponse();
         result.put("code", response.getCode());
         result.put("response", data);
-        if (desc != null)
-            result.put("msg", desc);
+        if (desc != null) result.put("msg", desc);
         return result;
     }
 
@@ -49,12 +48,9 @@ public class BaseController {
 
     public MKOResponse makeResponseByMKOResult(MKOResult mkoResult) {
         MKOResponse result = new MKOResponse();
-        if (mkoResult.success)
-            result.put("code", MKOResponseCode.Success.getCode());
-        else
-            result.put("code", MKOResponseCode.BusinessError);
-        if (mkoResult.getMessage() != null)
-            result.put("msg", mkoResult.getMessage());
+        if (mkoResult.success) result.put("code", MKOResponseCode.Success.getCode());
+        else result.put("code", MKOResponseCode.BusinessError);
+        if (mkoResult.getMessage() != null) result.put("msg", mkoResult.getMessage());
         return result;
     }
 
@@ -98,8 +94,6 @@ public class BaseController {
 
         return map;
     }
-
-
 
 
 }

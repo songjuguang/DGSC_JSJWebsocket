@@ -3,7 +3,6 @@ package com.mkoteam.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.mkoteam.entity.JSJConfig;
-import com.mkoteam.entity.ResultData;
 import com.mkoteam.listener.ListenerManager;
 import com.mkoteam.repository.AlarmRepository;
 import com.mkoteam.repository.JSJConfigRepository;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.text.ParseException;
 import java.util.*;
 
@@ -53,7 +53,6 @@ public class MainController extends BaseController {
         List<Object> lists = alarmRepository.findAlarmInfo(cid);
         List<Object> li = new ArrayList<>();
         for (Object object : lists) {
-            ResultData resultData = new ResultData();
             String str = JSON.toJSONString(object);
             String[] res = str.split(",");
             System.out.println("结果：" + res[0] + "," + res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5] + "," + res[6] + "," + res[7] + "," + res[8]);
@@ -333,11 +332,11 @@ public class MainController extends BaseController {
             return this.makeParamsLackResponse("缺少GroupId");
         }
 //        先判断数据库有没该groupId的参数信息
-        JSJConfig js =  jsjConfigRepository.findByGroupId(jsjConfig.getGroupId());
-        if(js==null){
+        JSJConfig js = jsjConfigRepository.findByGroupId(jsjConfig.getGroupId());
+        if (js == null) {
             try {
                 jsjConfigRepository.save(jsjConfig);
-                ListenerManager.getSingle().saveMessage("增加参数",jsjConfig.getGroupId(),jsjConfig);
+                ListenerManager.getSingle().saveMessage("增加参数", jsjConfig.getGroupId(), jsjConfig);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -350,15 +349,15 @@ public class MainController extends BaseController {
      */
     @GetMapping("deleteJSJConfig")
     public MKOResponse deleteJSJConfig(@RequestParam(value = "groupId") String groupId) {
-        if (StringUtils.isEmpty(groupId)){
+        if (StringUtils.isEmpty(groupId)) {
             return this.makeParamsLackResponse("缺少GroupId");
         }
 //        先判断数据库有没该groupId的参数信息
-        JSJConfig js =  jsjConfigRepository.findByGroupId(groupId);
-        if(js!=null){
+        JSJConfig js = jsjConfigRepository.findByGroupId(groupId);
+        if (js != null) {
             try {
                 jsjConfigRepository.delete(js);
-                ListenerManager.getSingle().saveMessage("移除参数",groupId,js);
+                ListenerManager.getSingle().saveMessage("移除参数", groupId, js);
             } catch (Exception e) {
                 e.printStackTrace();
             }
