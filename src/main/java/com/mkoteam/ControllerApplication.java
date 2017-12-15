@@ -41,6 +41,14 @@ public class ControllerApplication implements CommandLineRunner, DListener {
 
     ListenerManager listenerManager;
 
+    @Value("${cbs.urladdress}")
+    private String urladdress;
+
+    @Value("${cbs.ffmpegPath}")
+    private String ffmpegPath;
+
+    @Value("${cbs.picturepath}")
+    private String picturepath;
 
     @Value("${spring.data.url}")
     String webSocketURI;
@@ -79,11 +87,11 @@ public class ControllerApplication implements CommandLineRunner, DListener {
                                 String[] cidStr = str.split(",");
                                 String cidInfo = cidStr[0];
                                 String videoInfo = cidStr[1];
-                                String picAddr = "D:\\pictures\\" + RandomUtil.getRandomString(24) + ".jpeg";
-                                String commandStr = "D:\\tool\\ffmpeg\\bin\\ffmpeg -i " + videoInfo + " -f image2 -ss 5 -vframes 1 -s 600*600 " + picAddr;
+                                String picAddr = RandomUtil.getRandomString(24) + ".jpeg";
+                                String commandStr = ffmpegPath + " -i " + videoInfo + " -f image2 -ss 5 -vframes 1 -s 300*300 "+ picturepath + picAddr;
                                 UpdatePictureUtil.exeCmd(commandStr);
 //                             更新数据库该监控摄像头的图片信息
-                                alarmRepository.updatePic(cidInfo, picAddr);
+                                alarmRepository.updatePic(cidInfo, ""+urladdress+picAddr);
                             }
                         }
                     } catch (Exception e) {
