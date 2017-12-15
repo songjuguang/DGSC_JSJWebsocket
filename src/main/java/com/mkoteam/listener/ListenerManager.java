@@ -1,17 +1,14 @@
 package com.mkoteam.listener;
 
-import com.mkoteam.ControllerApplication;
-import com.mkoteam.entity.JSJConfig;
 
+import com.mkoteam.entity.JSJConfig;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
 public class ListenerManager {
     private Collection listeners;
-
     private static ListenerManager listenerManager;
-
     public static ListenerManager getSingle() {
         if (listenerManager == null) {
             listenerManager = new ListenerManager();

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.text.ParseException;
 import java.util.*;
 
@@ -89,8 +88,6 @@ public class MainController extends BaseController {
         if (StringUtils.isEmpty(groupId)) {
             return this.makeParamsLackResponse("缺少groupId");
         }
-//        查询出该单位下报警的总记录数
-//        int total = alarmRepository.findAlarmDataCount(groupId);
 //        查询出摄像头位置和类型数据和单个报警次数
         List<Object> lists = alarmRepository.findAlarmData(groupId);
         List<Object> li = new ArrayList<>();
@@ -135,7 +132,6 @@ public class MainController extends BaseController {
             return this.makeParamsLackResponse("type传入参数格式不对");
         }
         String date = DateUtils.datetimeFormat.format(new Date());
-//        ParsePosition pos = new ParsePosition(8);
         Date da = null;
         try {
             da = DateUtils.datetimeFormat.parse(date);
@@ -161,7 +157,6 @@ public class MainController extends BaseController {
             return this.makeParamsLackResponse("缺少groupId");
         }
         List<Object> lists = alarmRepository.findVideoSurveillanceList(groupId);
-//        int total = alarmRepository.findVideoSurveillanceCount(groupId);
         List<Object> li = new ArrayList<>();
         Map<String, Object> mapTtotal = new HashMap<>();
         for (Object object : lists) {
@@ -265,7 +260,6 @@ public class MainController extends BaseController {
         if (StringUtils.isEmpty(cid)) {
             return this.makeParamsLackResponse("缺少cid");
         }
-//        int total = alarmRepository.findDeviceAlarmInfoCount(cid);
         List<Object> lists = alarmRepository.findDeviceAlarmInfoList(cid);
         List<Object> li = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();

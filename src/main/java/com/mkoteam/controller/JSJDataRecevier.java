@@ -27,11 +27,9 @@ public class JSJDataRecevier extends WebSocketClient {
     public JSJDataRecevier(URI serverURI) {
         super(serverURI);
     }
-
     public JSJDataRecevier(URI serverUri, Draft draft) {
         super(serverUri, draft);
     }
-
     public JSJDataRecevier() throws URISyntaxException {
         super(new URI(""));
         //super();
@@ -50,7 +48,6 @@ public class JSJDataRecevier extends WebSocketClient {
         heartObj.put("route", "heart_beat");
 
 //      此线程为发送心跳包 检测连接
-
         final JSJDataRecevier self = this;
         new Thread(new Runnable() {
             @Override

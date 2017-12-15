@@ -12,12 +12,6 @@ import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<AlarmData, String> {
 
-    List<AlarmData> findByCid(String cid);
-
-
-    @Query(value = "SELECT COUNT(DISTINCT cid) as total FROM SC_JSJ_AlarmData WHERE groupId = ?1 AND status<>3", nativeQuery = true)
-    Integer findAlarmDataCount(String groupId);
-
     @Query(value = "SELECT status FROM SC_JSJ_AlarmData WHERE cid = ?1 AND status = 2 LIMIT 1", nativeQuery = true)
     String findAlarmStatus(String cid);
 
@@ -57,8 +51,6 @@ public interface AlarmRepository extends JpaRepository<AlarmData, String> {
             "FROM SC_WLW_SSSB x,SC_QY_JZXX y WHERE x.groupId=?1 AND x.jzID=y.jzID", nativeQuery = true)
     List<Object> findVideoSurveillanceList(String groupId);
 
-    @Query(value = "SELECT count(*) FROM SC_WLW_SSSB WHERE groupId = ?1 GROUP by groupId", nativeQuery = true)
-    Integer findVideoSurveillanceCount(String groupId);
 
     @Query(value = "SELECT x.cid,z.systemId,x.SSSBName,q.description,x.installDate,x.alarmType,x.brand,x.model,y.jzName,x.jzLevel,x.jzPosition,x.sbStatus,x.video_addr " +
             "FROM SC_WLW_SSSB x, SC_QY_JZXX y,SC_WLW_Unit z,SC_System_Group q WHERE x.cid=?1 AND x.jzID=y.jzID AND x.SSSBCode=z.unitId AND x.groupId=q.groupId", nativeQuery = true)
@@ -84,9 +76,6 @@ public interface AlarmRepository extends JpaRepository<AlarmData, String> {
             "GROUP BY q.status ORDER BY q.datetime DESC", nativeQuery = true)
     List<Object> findDeviceAlarmInfoList(String cid);
 
-
-    @Query(value = "SELECT COUNT(DISTINCT status) AS total FROM SC_JSJ_AlarmData WHERE cid=?1", nativeQuery = true)
-    Integer findDeviceAlarmInfoCount(String cid);
 
     @Query(value = "SELECT cid,video_addr FROM SC_WLW_SSSB", nativeQuery = true)
     String[] findAllVideoaddr();
