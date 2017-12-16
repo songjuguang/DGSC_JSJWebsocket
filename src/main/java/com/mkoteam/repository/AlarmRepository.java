@@ -47,7 +47,7 @@ public interface AlarmRepository extends JpaRepository<AlarmData, String> {
     void updateStatusNormalBycid(Date da, String cid);
 
 
-    @Query(value = "SELECT x.cid,y.jzName,x.jzLevel,x.jzPosition,x.sbStatus,x.pic_addr " +
+    @Query(value = "SELECT x.cid,y.jzName,x.jzLevel,x.jzPosition,x.sbStatus " +
             "FROM SC_WLW_SSSB x,SC_QY_JZXX y WHERE x.groupId=?1 AND x.jzID=y.jzID", nativeQuery = true)
     List<Object> findVideoSurveillanceList(String groupId);
 

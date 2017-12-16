@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.net.URISyntaxException;
@@ -38,6 +40,11 @@ public class ControllerApplication implements CommandLineRunner, DListener {
     AlarmRepository alarmRepository;
     @Autowired
     TypeRepository typeRepository;
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     ListenerManager listenerManager;
 
@@ -76,12 +83,12 @@ public class ControllerApplication implements CommandLineRunner, DListener {
         String[] addrs = alarmRepository.findAllVideoaddr();
 
 //      此处线程负责实时视频定时更新截图
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(60000);
+                        Thread.sleep(120000);
                         for (String str : addrs) {
                             if (!StringUtils.isEmpty(str.replace(",",""))) {
                                 String[] cidStr = str.split(",");
@@ -92,6 +99,34 @@ public class ControllerApplication implements CommandLineRunner, DListener {
                                 UpdatePictureUtil.exeCmd(commandStr);
 //                             更新数据库该监控摄像头的图片信息
                                 alarmRepository.updatePic(cidInfo, ""+urladdress+picAddr);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();*/
+
+//     将视频实时截图保存至redis服务器内 stringRedisTemplate
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(120000);
+                        for (String str : addrs) {
+                            if (!StringUtils.isEmpty(str.replace(",",""))) {
+                                String[] cidStr = str.split(",");
+                                String cidInfo = cidStr[0];
+                                String videoInfo = cidStr[1];
+                                String picAddr = RandomUtil.getRandomString(24) + ".jpeg";
+                                String commandStr = ffmpegPath + " -i " + videoInfo + " -f image2 -ss 5 -vframes 1 -s 300*300 "+ picturepath + picAddr;
+                                UpdatePictureUtil.exeCmd(commandStr);
+//                             将图片保存至redis数据库
+//                                alarmRepository.updatePic(cidInfo, ""+urladdress+picAddr);
+//                                redisTemplate.opsForHash().put("videoPicture",cidInfo,""+urladdress+picAddr);
+                                stringRedisTemplate.opsForValue().set(cidInfo,""+urladdress+picAddr);
                             }
                         }
                     } catch (Exception e) {

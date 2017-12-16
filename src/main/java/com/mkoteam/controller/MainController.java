@@ -10,10 +10,12 @@ import com.mkoteam.until.DateUtils;
 import com.mkoteam.until.MKOResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.text.ParseException;
 import java.util.*;
 
@@ -24,9 +26,10 @@ public class MainController extends BaseController {
 
     @Autowired
     JSJConfigRepository jsjConfigRepository;
-
     @Autowired
     AlarmRepository alarmRepository;
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
 
     /**
@@ -163,17 +166,20 @@ public class MainController extends BaseController {
             String str = JSON.toJSONString(object);
             String[] res = str.split(",");
             Map<String, Object> map = new HashMap<>();
-            map.put("cid", res[0].replace("[\"", "").replace("\"", ""));
+            String cid = res[0].replace("[\"", "").replace("\"", "");
+            map.put("cid", cid);
             map.put("jzName", res[1].replace("\"", ""));
             map.put("jzLevel", res[2].replace("\"", ""));
             map.put("jzPosition", res[3].replace("\"", ""));
-            if (Integer.valueOf(res[4]) == 1) {
+            Integer in = Integer.valueOf(res[4].replace("]", "").replace("\"", ""));
+            if (in == 1) {
                 map.put("deviceStatus", "正常");
             }
-            if (Integer.valueOf(res[4]) == 4) {
+            if (in == 4) {
                 map.put("deviceStatus", "停用");
             }
-            map.put("picture", res[5].replace("]", "").replace("\"", ""));
+//            map.put("picture", res[5].replace("]", "").replace("\"", ""));
+            map.put("picture", stringRedisTemplate.opsForValue().get(cid));
             li.add(map);
         }
         mapTtotal.put("total", li.size());
