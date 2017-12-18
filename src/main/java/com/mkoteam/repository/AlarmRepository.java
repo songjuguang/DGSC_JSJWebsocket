@@ -76,6 +76,9 @@ public interface AlarmRepository extends JpaRepository<AlarmData, String> {
             "GROUP BY q.status ORDER BY q.datetime DESC", nativeQuery = true)
     List<Object> findDeviceAlarmInfoList(String cid);
 
+    @Query(value = "SELECT datetime FROM SC_JSJ_AlarmData WHERE cid=?1 AND STATUS=1 ORDER BY datetime DESC limit 1", nativeQuery = true)
+    String findDeviceAlarmRecentlyTime(String cid);
+
 
     @Query(value = "SELECT cid,video_addr FROM SC_WLW_SSSB", nativeQuery = true)
     String[] findAllVideoaddr();

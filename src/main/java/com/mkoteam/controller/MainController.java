@@ -36,7 +36,7 @@ public class MainController extends BaseController {
      * 根据cid查询设备报警信息  参数为 cid
      */
     @GetMapping("findAlarmInfo")
-    public MKOResponse findAlarmInfo(@RequestParam(value = "cid") String cid) {
+    public MKOResponse findAlarmInfo(@RequestParam(value = "cid") String cid) throws ParseException {
         if (StringUtils.isEmpty(cid)) {
             return this.makeParamsLackResponse("缺少cid");
         }
@@ -69,6 +69,9 @@ public class MainController extends BaseController {
             String timeStr = DateUtils.datetimeFormat.format(new Date(timeLong));
             maps.put("alarmTime", timeStr);
             if (Integer.valueOf(res[7]) == 1) {
+                String recentlyTime = alarmRepository.findDeviceAlarmRecentlyTime(cid);
+                String timeStr2 = DateUtils.datetimeFormat.format(DateUtils.datetimeFormat.parse(recentlyTime));
+                maps.put("alarmTime", timeStr2);
                 maps.put("deviceStatus", "待处理");
             }
             if (Integer.valueOf(res[7]) == 2) {
@@ -262,7 +265,7 @@ public class MainController extends BaseController {
      * 监控摄像头的实时报警和历史记录展示
      */
     @GetMapping("findDeviceAlarmInfoList")
-    public MKOResponse findDeviceAlarmInfoList(@RequestParam(value = "cid") String cid) {
+    public MKOResponse findDeviceAlarmInfoList(@RequestParam(value = "cid") String cid) throws ParseException {
         if (StringUtils.isEmpty(cid)) {
             return this.makeParamsLackResponse("缺少cid");
         }
@@ -284,6 +287,9 @@ public class MainController extends BaseController {
             String timeStr = DateUtils.datetimeFormat.format(new Date(timeLong));
             maps.put("alarmTime", timeStr);
             if (Integer.valueOf(res[7]) == 1) {
+                String recentlyTime = alarmRepository.findDeviceAlarmRecentlyTime(cid);
+                String timeStr1 = DateUtils.datetimeFormat.format(DateUtils.datetimeFormat.parse(recentlyTime));
+                maps.put("alarmTime", timeStr1);
                 maps.put("status", "待处理");
             }
             if (Integer.valueOf(res[7]) == 2) {

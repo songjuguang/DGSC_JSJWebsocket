@@ -1,22 +1,18 @@
 package com.mkoteam;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mkoteam.controller.JSJDataRecevier;
 import com.mkoteam.entity.AlarmData;
 import com.mkoteam.entity.JSJConfig;
-import com.mkoteam.entity.TypeConversion;
 import com.mkoteam.listener.DListener;
 import com.mkoteam.listener.JSJDataEvent;
 import com.mkoteam.listener.ListenerManager;
 import com.mkoteam.repository.AlarmRepository;
 import com.mkoteam.repository.JSJConfigRepository;
 import com.mkoteam.repository.TypeRepository;
-import com.mkoteam.until.HttpUtil;
 import com.mkoteam.until.RandomUtil;
 import com.mkoteam.until.UpdatePictureUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.greenrobot.eventbus.EventBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -24,11 +20,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 
 @SpringBootApplication
@@ -122,6 +115,8 @@ public class ControllerApplication implements CommandLineRunner, DListener {
                                 String videoInfo = cidStr[1];
                                 String picAddr = RandomUtil.getRandomString(24) + ".jpeg";
                                 String commandStr = ffmpegPath + " -i " + videoInfo + " -f image2 -ss 5 -vframes 1 -s 300*300 "+ picturepath + picAddr;
+//                                String commandStr = /usr/local/ffmpeg/bin/ffmpeg -i http://61.177.139.216:8891/hls/100964/index.m3u8 -f image2 -ss 5 -vframes 1 -s 300*300 /usr/test/image1.jpeg;
+//                                String commandStr = ffmpeg -i http://61.177.139.216:8891/hls/100964/index.m3u8 -f image2 -ss 5 -vframes 1 -s 300*300 D:/pictures/image6.jpeg;
                                 UpdatePictureUtil.exeCmd(commandStr);
 //                             将图片保存至redis数据库
 //                                alarmRepository.updatePic(cidInfo, ""+urladdress+picAddr);
